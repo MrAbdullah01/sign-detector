@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "253795056850",
+    "project_id": "sign-detector-90027",
+    "storage_bucket": "sign-detector-90027.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:253795056850:android:9c194d35d332aa619dc10b",
+        "android_client_info": {
+          "package_name": "com.example.sign_detector"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKRn5HpoDhFGdGIiP_mj0LHvbV7qyE6WY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
