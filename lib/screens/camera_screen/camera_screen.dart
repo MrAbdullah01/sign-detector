@@ -62,22 +62,24 @@ class _CameraScreenState extends State<CameraScreen> {
 
   dataSend(imagePath)async{
     try{
-      Response response = await post(
-        Uri.parse("https://0490-39-34-206-61.ngrok-free.app/upload"),
-        body: {
-          "reference_image" : imagePath.toString()
-        }
-      );
-      print('Status code: ${response.statusCode}');
-      print('Response body: ${response.body.toString()}');
-      if(response.statusCode == 200){
-        print("running");
-       var data = jsonDecode(response.body.toString());
-        print(data);
-        print("Image Send");
-      }else{
-        print("failed");
-      }
+      // Response response = await post(
+      //   Uri.parse("https://0490-39-34-206-61.ngrok-free.app/upload"),
+      //   body: {
+      //     "reference_image" : imagePath.toString()
+      //   }
+      // );
+      // print('Status code: ${response.statusCode}');
+      // print('Response body: ${response.body.toString()}');
+      // if(response.statusCode == 200){
+      //   print("running");
+      //  var data = jsonDecode(response.body.toString());
+      //   print(data);
+      //   print("Image Send");
+      // }else{
+      //   print("failed");
+      // }
+      // var request =
+      // http.MultipartRequest(‘POST’, Uri.parse(urlToInsertImage));
     }catch(e){
       print(e.toString());
     }
