@@ -43,7 +43,6 @@ class _ApiTestingScreenState extends State<ApiTestingScreen> {
                   child: Center(
                     child: Image.file(
                       File(image!.path).absolute,
-                      height: 100,
                       width: 100,
                       fit: BoxFit.cover,
                     ),
@@ -55,6 +54,7 @@ class _ApiTestingScreenState extends State<ApiTestingScreen> {
             GestureDetector(
               onTap: (){
                 // uploadImage();
+                sendApiRequest();
               },
               child: Container(
                 height: 50,
@@ -70,81 +70,45 @@ class _ApiTestingScreenState extends State<ApiTestingScreen> {
   }
 
 
-  // Future getImage()async{
-  //   final pickedFile = await _picker.pickImage(source: ImageSource.gallery , imageQuality: 80);
-  //
-  //   if(pickedFile!= null ){
-  //     image = File(pickedFile.path);
-  //     setState(() {
-  //
-  //     });
-  //   }else {
-  //     print('no image selected');
-  //   }
-  // }
-  Future<File> getImage() async {
-    final ImagePicker _picker = ImagePicker();
-// Pick an image
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-//TO convert Xfile into file
-    File file = File(image!.path);
-//print(‘Image picked’);
-    return file;
+  Future getImage()async{
+    XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery , imageQuality: 80);
+
+  //  File file = File(image!.path);
+
+    if(pickedFile!= null ){
+      image = File(pickedFile.path);
+      setState(() {
+
+      });
+    }else {
+      print('no image selected');
+    }
   }
 
+
   void sendApiRequest() async{
-    final image = await getImage();
+    // final image = await getImage();
 
     var request =
     http.MultipartRequest('POST', Uri.parse('https://0490-39-34-206-61.ngrok-free.app/upload/'));
     request.fields['reference_image'] = image.toString();
-    request.files.add(http.MultipartFile.fromBytes('reference_image', File(image.path).readAsBytesSync(),filename: image.path));
+    request.files.add(http.MultipartFile.fromBytes('reference_image', File(image!.path).readAsBytesSync(),filename: image!.path));
     var res = await request.send();
 
-    print(res);
+    var responed = await http.Response.fromStream(res);
+    final responseData = json.decode(responed.body);
+
+    print("Response: ${res.statusCode}");
+
+    if(res.statusCode == 200){
+      print("SUCCES");
+      print(responseData);
+    }else{
+      print("Request Code: ${res.statusCode}");
+    }
+
+
   }
 
-  // Future<void> uploadImage ()async{
-  //
-  //   setState(() {
-  //     showSpinner = true ;
-  //   });
-  //
-  //   var stream  = new http.ByteStream(image!.openRead());
-  //   stream.cast();
-  //
-  //   var length = await image!.length();
-  //
-  //   var uri = Uri.parse('https://0490-39-34-206-61.ngrok-free.app/upload');
-  //
-  //   var request = new http.MultipartRequest('POST', uri);
-  //
-  // //  request.fields['title'] = "Static title" ;
-  //
-  //   var multiport = new http.MultipartFile(
-  //       'reference_image',
-  //       stream,
-  //       length);
-  //
-  //   request.files.add(multiport);
-  //
-  //   var response = await request.send() ;
-  //
-  //   print(response.stream.toString());
-  //   print(response.statusCode);
-  //   if(response.statusCode == 200){
-  //     setState(() {
-  //       showSpinner = false ;
-  //     });
-  //     print('image uploaded');
-  //   }else {
-  //     print('failed');
-  //     setState(() {
-  //       showSpinner = false ;
-  //     });
-  //
-  //   }
-  //
-  // }
 
 }
