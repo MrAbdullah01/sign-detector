@@ -87,21 +87,20 @@ class _ApiTestingScreenState extends State<ApiTestingScreen> {
 
 
   void sendApiRequest() async{
-    // final image = await getImage();
 
     var request =
     http.MultipartRequest('POST', Uri.parse('https://0490-39-34-206-61.ngrok-free.app/upload/'));
-    request.fields['reference_image'] = image.toString();
+   // request.fields['reference_image'] = image.toString();
     request.files.add(http.MultipartFile.fromBytes('reference_image', File(image!.path).readAsBytesSync(),filename: image!.path));
     var res = await request.send();
 
-    var responed = await http.Response.fromStream(res);
-    final responseData = json.decode(responed.body);
+    var responsed = await http.Response.fromStream(res);
+    final responseData = json.decode(responsed.body);
 
     print("Response: ${res.statusCode}");
 
     if(res.statusCode == 200){
-      print("SUCCES");
+      print("SUCCESS");
       print(responseData);
     }else{
       print("Request Code: ${res.statusCode}");

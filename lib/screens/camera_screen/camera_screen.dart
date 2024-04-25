@@ -2,14 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart';
-import 'package:path/path.dart';
-import 'package:async/async.dart';
-import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key,this.url});
@@ -19,7 +15,7 @@ class CameraScreen extends StatefulWidget {
 }
 
 class _CameraScreenState extends State<CameraScreen> {
-  CameraController? controller;
+
   @override
   void initState() {
     super.initState();
@@ -42,78 +38,42 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> onCapture() async {
-    var imagePath;
     try {
-     var image = await controller!.takePicture();
+     XFile image = await controller!.takePicture();
      print(image.toString());
-      // await controller!.takePicture().then((filePath) {
-      //   if(mounted){
-      //     setState(() {
-      //       imagePath = filePath;
-      //     });
-      //   }
-      // });
+      await controller!.takePicture();
       // upload(File(imagePath));
-       dataSend(image.toString());
+       dataSend(image);
     } catch (e) {
       print(e);
     }
   }
 
-  dataSend(imagePath)async{
-    try{
-      // Response response = await post(
-      //   Uri.parse("https://0490-39-34-206-61.ngrok-free.app/upload"),
-      //   body: {
-      //     "reference_image" : imagePath.toString()
-      //   }
-      // );
-      // print('Status code: ${response.statusCode}');
-      // print('Response body: ${response.body.toString()}');
-      // if(response.statusCode == 200){
-      //   print("running");
-      //  var data = jsonDecode(response.body.toString());
-      //   print(data);
-      //   print("Image Send");
-      // }else{
-      //   print("failed");
-      // }
-      // var request =
-      // http.MultipartRequest(‘POST’, Uri.parse(urlToInsertImage));
-    }catch(e){
-      print(e.toString());
+  dataSend(image)async{
+    var request =
+    http.MultipartRequest('POST', Uri.parse('https://0490-39-34-206-61.ngrok-free.app/upload/'));
+    // request.fields['reference_image'] = image.toString();
+    request.files.add(http.MultipartFile.fromBytes('reference_image', File(image!.path).readAsBytesSync(),filename: image!.path));
+    var res = await request.send();
+
+    final responsed = await http.Response.fromStream(res);
+    responseData = json.decode(responsed.body);
+
+    print("Response: ${res.statusCode}");
+
+    if(res.statusCode == 200){
+      print("SUCCESS");
+      print(responseData["result"]);
+    }else{
+      print("Request Code: ${res.statusCode}");
     }
+    setState(() {
+      responseData;
+    });
   }
-
-  // upload(File imageFile) async {
-  //   // open a byteStream
-  //   var stream = new http.ByteStream(DelegatingStream.typed(imageFile.openRead()));
-  //   // get file length
-  //   var length = await imageFile.length();
-  //
-  //   // string to uri
-  //   var uri = Uri.parse("https://0490-39-34-206-61.ngrok-free.app/upload");
-  //
-  //   // create multipart request
-  //   var request = http.MultipartRequest("POST", uri);
-  //
-  //   // multipart that takes file
-  //   var multipartFile = http.MultipartFile('reference_image', stream, length,
-  //       filename: basename(imageFile.path));
-  //
-  //   // add file to multipart
-  //   request.files.add(multipartFile);
-  //
-  //   // send
-  //   var response = await request.send();
-  //   print(response.statusCode);
-  //
-  //   // listen for response
-  //   response.stream.transform(utf8.decoder).listen((value) {
-  //     print(value);
-  //   });
-  // }
-
+  CameraController? controller;
+  var responseData;
+  var result = "";
   @override
   void dispose() {
     SystemChrome.setPreferredOrientations([
@@ -144,6 +104,9 @@ class _CameraScreenState extends State<CameraScreen> {
                 child: GestureDetector(
                   onTap: (){
                     onCapture();
+                    setState(() {
+                      result = result + responseData["result"];
+                    });
                   },
                   child: Container(
                     height: 70,
@@ -166,8 +129,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     width: size.width * 0.8,
                     color: Colors.grey,
                     child:  Center(
-                      child: Text(
-                        widget.url != null ? widget.url! : "Your Text is Here",
+                      child: Text(responseData != null ? result.toString() : "",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20.0,
@@ -175,19 +137,27 @@ class _CameraScreenState extends State<CameraScreen> {
                       ),
                     ),
                   ),
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    height: 80,
-                    width: 80,
-                    decoration: BoxDecoration(
-                        color: Colors.blue
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Clear',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 12.0,
+                  GestureDetector(
+                    onTap: (){
+                      setState(() {
+                        result = "";
+                      });
+                      print("-------------------${result.toString()}-------------------");
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      height: 80,
+                      width: 80,
+                      decoration: BoxDecoration(
+                          color: Colors.blue
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Clear',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 12.0,
+                          ),
                         ),
                       ),
                     ),
