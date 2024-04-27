@@ -113,25 +113,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void saveDataToDatabase() async {
-    // print("enter");
-    // await firestore.collection("users").doc("userUID")
-    // .set({
-    //   "data" : "sata"
-    // }).whenComplete(() {
-    //   print("complete");
-    // }).onError((error, stackTrace) {
-    //   print("error");
-    // });
-    // String? userUID = FirebaseAuth.instance.currentUser!.uid;
-    // await FirebaseFirestore.instance.collection("users").doc(userUID).set({
-    //   "email": emailC.text.toString(),
-    //   "name": nameC.text.toString(),
-    //   "userUID": userUID,
-    // }).whenComplete(() {
-    //   setState(() {
-    //     Navigator.push(
-    //         context, MaterialPageRoute(builder: (context) => HomeScreen()));
-    //   });
-    // });
+    String? userUID = FirebaseAuth.instance.currentUser!.uid;
+    await FirebaseFirestore.instance.collection("users").doc(userUID).set({
+      "email": emailC.text.toString(),
+      "name": nameC.text.toString(),
+      "userUID": userUID,
+    }).whenComplete(() {
+      setState(() {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      });
+    });
   }
 }

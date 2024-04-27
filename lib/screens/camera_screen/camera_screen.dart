@@ -28,7 +28,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
   Future<void> initCamera() async {
     final cameras = await availableCameras();
-    controller = CameraController(cameras[0], ResolutionPreset.medium);
+    controller = CameraController(cameras[0], ResolutionPreset.low);
     controller!.initialize().then((_) {
       if (!mounted) {
         return;
@@ -40,35 +40,36 @@ class _CameraScreenState extends State<CameraScreen> {
   Future<void> onCapture() async {
     try {
      XFile image = await controller!.takePicture();
-     print(image.toString());
-      await controller!.takePicture();
+     debugPrint(image.toString());
+     int imageSize = await image.length();
       // upload(File(imagePath));
        dataSend(image);
+     debugPrint("$imageSize bytes");
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
   dataSend(image)async{
     var request =
-    http.MultipartRequest('POST', Uri.parse('https://0490-39-34-206-61.ngrok-free.app/upload/'));
-    // request.fields['reference_image'] = image.toString();
+    http.MultipartRequest('POST', Uri.parse('https://5f6f-39-34-254-161.ngrok-free.app/upload/'));
     request.files.add(http.MultipartFile.fromBytes('reference_image', File(image!.path).readAsBytesSync(),filename: image!.path));
     var res = await request.send();
 
     final responsed = await http.Response.fromStream(res);
     responseData = json.decode(responsed.body);
 
-    print("Response: ${res.statusCode}");
+    debugPrint("Response: ${res.statusCode}");
 
     if(res.statusCode == 200){
-      print("SUCCESS");
-      print(responseData["result"]);
+      debugPrint("SUCCESS");
+      debugPrint(responseData["result"]);
     }else{
-      print("Request Code: ${res.statusCode}");
+      debugPrint("Request Code: ${res.statusCode}");
     }
     setState(() {
       responseData;
+      result = result + responseData["result"];
     });
   }
   CameraController? controller;
@@ -104,9 +105,6 @@ class _CameraScreenState extends State<CameraScreen> {
                 child: GestureDetector(
                   onTap: (){
                     onCapture();
-                    setState(() {
-                      result = result + responseData["result"];
-                    });
                   },
                   child: Container(
                     height: 70,
@@ -142,7 +140,7 @@ class _CameraScreenState extends State<CameraScreen> {
                       setState(() {
                         result = "";
                       });
-                      print("-------------------${result.toString()}-------------------");
+                      debugPrint("-------------------${result.toString()}-------------------");
                     },
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 20),
