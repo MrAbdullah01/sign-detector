@@ -52,7 +52,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
   dataSend(image)async{
     var request =
-    http.MultipartRequest('POST', Uri.parse('https://5f6f-39-34-254-161.ngrok-free.app/upload/'));
+    http.MultipartRequest('POST', Uri.parse(widget.url.toString()));
     request.files.add(http.MultipartFile.fromBytes('reference_image', File(image!.path).readAsBytesSync(),filename: image!.path));
     var res = await request.send();
 
